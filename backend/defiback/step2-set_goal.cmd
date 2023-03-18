@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: application/json" -d " { \"id\": \"8758358232\", \"userId\": \"3284892\", \"type\": \"steps\", \"status\": \"Pending\", \"goalDetails\": { \"date\": \"18/03/2023\", \"numberOfSteps\": 5 } }" http://localhost:5000/profile
