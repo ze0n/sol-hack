@@ -1,0 +1,8 @@
+{% extends "bootstrap/base.html" %} {% block title %}DOOERS{% endblock %} {% block content %}
+<h2>All challenges</h2>
+<ul>
+    {%for c in challenges%}
+    <li>c.id</li>
+    {%endfor%}
+</ul>
+{%endblock%}
