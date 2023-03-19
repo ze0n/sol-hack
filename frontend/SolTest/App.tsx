@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
+import { DataProvider } from './screens/DataContext';
 import {
   Button,
   SafeAreaView,
@@ -93,7 +94,7 @@ const  App = () =>  {
 
 
   return (
-   
+    
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -119,6 +120,7 @@ const  App = () =>  {
         />
       </Tab.Navigator>
     </NavigationContainer>
+  
           
 
 
