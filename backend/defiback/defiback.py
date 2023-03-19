@@ -6,12 +6,6 @@ from flask_bootstrap import Bootstrap
 import uuid
 import solana
 
-from solana.rpc.api import Client
-
-client = Client("https://api.devnet.solana.com")
-
-client.
-
 app = Flask(__name__)
 Bootstrap(app)
 
