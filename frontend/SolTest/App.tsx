@@ -1,5 +1,10 @@
 import React, { Component, useEffect, useState} from 'react';
 import type { PropsWithChildren } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {
   Button,
   SafeAreaView,
@@ -23,10 +28,17 @@ import {
 import Header from './screens/Header';
 import StepGoalInput from './screens/StepGoalInput';
 import { Keypair, Connection, clusterApiUrl } from '@solana/web3.js';
+import { Wallet } from './screens/Wallet';
+import ProfileScreen from './screens/ProfileScreen';
+import First from './screens/First';
+import Screen1 from './screens/Screen1';
+import Screen2 from './screens/Screen2';
 
 type SectionProps = PropsWithChildren<{
   title: string;
 }>;
+
+const Stack = createNativeStackNavigator();
 
 const Section = ({ children, title }: SectionProps)=>  {
   const isDarkMode = useColorScheme() === 'dark';
@@ -55,6 +67,7 @@ const Section = ({ children, title }: SectionProps)=>  {
     </View>
   );
 }
+const Tab = createBottomTabNavigator();
 
 const  App = () =>  {
   const isDarkMode = useColorScheme() === 'dark';
@@ -77,29 +90,42 @@ const  App = () =>  {
 }, []);
 
 
-  return (
-    <SafeAreaProvider style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}
-      >
-        <Header />
-          
-        {version ? (
-  <Section title="Version">{JSON.stringify(version, null, 2)}</Section>
-) : null}
-{keypair ? (
-  <Section title="Keypair">{JSON.stringify(keypair?.publicKey?.toBase58(), null, 2)}</Section>
-) : null}
-<Button title="New Keypair" onPress={randomKeypair} />
 
+
+  return (
+   
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            if (route.name === 'Screen1') {
+              return <FontAwesomeIcon name="home" size={size} color={color} />;
+            } else if (route.name === 'Screen2') {
+              return <EntypoIcon name="share" size={size} color={color} />;
+            }
+          },
+        })}
+      
+      >
+        <Tab.Screen
+          name="Screen1"
+          component={Screen1}
+          options={{ title: '' }}
+        />
+        <Tab.Screen
+          name="Screen2"
+          component={Screen2}
+          options={{ title: '' }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+          
+
+
+
+    
         
-      </ScrollView>
-    </SafeAreaProvider>
+   
   );
 }
 
