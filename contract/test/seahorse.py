@@ -21,7 +21,7 @@ class Goal(Account):
   status: Status
   externalGoalId: u128
 
-MANAGER_WALLET = 'CgNcBAHD6tn2ynKDAsnnXAbHTWyuksY5LLh3dPebfrUm'
+MANAGER_WALLET:Pubkey = 'CgNcBAHD6tn2ynKDAsnnXAbHTWyuksY5LLh3dPebfrUm'
 
 @instruction
 def set_goal(amount:u64, manager:Manager, owner:Signer, goal:Empty[Goal]):  
@@ -36,6 +36,7 @@ def set_goal(amount:u64, manager:Manager, owner:Signer, goal:Empty[Goal]):
     payer = signer,
     seeds = ['Goal', signer], # one time
     #authority = signer
+    owner = Pubkey.
   )
 
   goal.owner = owner.key()

@@ -5,27 +5,46 @@ declare_id!("4EqNfDwKUmatpyaNU3Z2ueYPiSMuWLZyvdJbwYcdKDpX");
 #[program]
 mod restaurant_goal {
     use super::*;
-    pub fn set_goal(ctx: Context<GoalAccounts>, amount: u64) -> Result<()> {
+    pub fn set_goal(ctx: Context<GoalAccounts>, restaurant: String, amount: u64) -> Result<()> {
         let new_goal = &mut ctx.accounts.goal;
         new_goal.winner = ctx.accounts.signer.key();
-        new_goal.looser = ctx.accounts.signer.key();
+        new_goal.loser = ctx.accounts.loseFund.key();
+        new_goal.escrow = ctx.accounts.tempFund.key();
         new_goal.amount = amount;
         new_goal.status = 0;
+
         msg!("Restaurant goal for {} stars", new_goal.amount);
 
-        // let ix = anchor_lang::solana_program::system_instruction::transfer(
-        //     &ctx.accounts.from.key(),
-        //     &ctx.accounts.to.key(),
-        //     amount,
-        // );
+        msg!(
+            "Signer {}: {}",
+            ctx.accounts.signer.key(),
+            ctx.accounts.signer.lamports()
+        );
+        msg!(
+            "Temp {}: {}",
+            ctx.accounts.tempFund.key(),
+            ctx.accounts.tempFund.lamports()
+        );
 
-        // anchor_lang::solana_program::program::invoke(
-        //     &ix,
-        //     &[
-        //         ctx.accounts.from.to_account_info(),
-        //         ctx.accounts.to.to_account_info(),
-        //     ],
-        // );
+        msg!(
+            "Sending {} --> {}",
+            ctx.accounts.signer.key(),
+            ctx.accounts.tempFund.key()
+        );
+
+        let ix = anchor_lang::solana_program::system_instruction::transfer(
+            &ctx.accounts.signer.key(),
+            &ctx.accounts.tempFund.key(),
+            amount,
+        );
+
+        anchor_lang::solana_program::program::invoke(
+            &ix,
+            &[
+                ctx.accounts.signer.to_account_info(),
+                ctx.accounts.tempFund.to_account_info(),
+            ],
+        );
 
         Ok(())
     }
@@ -34,15 +53,42 @@ mod restaurant_goal {
         if status == 1 {
             ctx.accounts.goal.status = status;
             msg!(
-                "Won, transfering amount {} to {}",
+                "Won, transfering amount {} --> {}",
                 ctx.accounts.goal.amount,
                 ctx.accounts.goal.winner
             );
+
+            let ix = anchor_lang::solana_program::system_instruction::transfer(
+                &ctx.accounts.tempFund.key(),
+                &ctx.accounts.signer.key(), // winner
+                ctx.accounts.goal.amount,
+            );
+
+            anchor_lang::solana_program::program::invoke(
+                &ix,
+                &[
+                    ctx.accounts.tempFund.to_account_info(),
+                    ctx.accounts.signer.to_account_info(), // winner
+                ],
+            );
         } else if status == 2 {
             msg!(
-                "Failed, transfering amount {} to {}",
+                "Failed, transfering amount {} --> {}",
                 ctx.accounts.goal.amount,
-                ctx.accounts.goal.looser
+                ctx.accounts.goal.loser
+            );
+            let ix = anchor_lang::solana_program::system_instruction::transfer(
+                &ctx.accounts.tempFund.key(),
+                &ctx.accounts.loseFund.key(),
+                ctx.accounts.goal.amount,
+            );
+
+            anchor_lang::solana_program::program::invoke(
+                &ix,
+                &[
+                    ctx.accounts.tempFund.to_account_info(),
+                    ctx.accounts.loseFund.to_account_info(),
+                ],
             );
         }
         Ok(())
@@ -60,6 +106,13 @@ pub struct GoalAccounts<'info> {
         bump
     )]
     pub goal: Account<'info, Goal>,
+
+    #[account(mut)]
+    pub tempFund: UncheckedAccount<'info>,
+
+    #[account(mut)]
+    pub loseFund: UncheckedAccount<'info>,
+
     #[account(mut)]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
@@ -68,7 +121,8 @@ pub struct GoalAccounts<'info> {
 #[account]
 pub struct Goal {
     pub winner: Pubkey,
-    pub looser: Pubkey,
+    pub loser: Pubkey,
+    pub escrow: Pubkey,
     pub amount: u64,
     pub status: u8,
 }
