@@ -8,7 +8,7 @@ interface Screen1Props {
   navigation: Screen1NavigationProp;
 }
 
-const Screen1 = () => {
+const Screen1 :React.FC<Screen1Props> = ({navigation}) => {
     const [selectedStepChallenge, setSelectedStepChallenge] = useState(null);
     const [solanaAmount, setSolanaAmount] = useState('');
   
@@ -25,6 +25,7 @@ const Screen1 = () => {
   
     const handleValidation = () => {
       // TODO: Implement your logic for submitting the challenge and payment here
+      navigation.navigate('Screen2');
       console.log('Selected step challenge:', selectedStepChallenge);
       console.log('Solana amount:', solanaAmount);
     };
